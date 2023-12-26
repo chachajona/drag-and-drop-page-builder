@@ -18,8 +18,11 @@ import {
 import SortableContainer, { Container } from "./components/Container";
 import SortableItem, { Item } from "./components/SortableItem";
 import { useComponentStore } from "../../store/components";
+import { ReactComponent as ArrowLeft } from "../../assets/icons/arrowLeft.svg";
+import { ReactComponent as ArrowRight } from "../../assets/icons/arrowRight.svg";
 
 export default function Demo1() {
+  const [slide, toggleSlide] = useState(true);
   const { components, addNewComponent, setComponents } = useComponentStore(
     (state) => ({
       components: state.components,
@@ -174,7 +177,7 @@ export default function Demo1() {
 
   return (
     <div className="flex flex-row gap-8 mx-80 my-5">
-      <div className="flex flex-col border w-full p-10">
+      <div className="flex flex-col border w-full p-10 max-w-[25%]">
         <div className="btn" onClick={addItem()}>
           Add Item
         </div>
@@ -217,12 +220,16 @@ export default function Demo1() {
                 </SortableItem>
               );
             })}
+
+            <div className="slide-btn" onClick={() => toggleSlide(!slide)}>
+              {slide ? <ArrowLeft /> : <ArrowRight />}
+            </div>
           </div>
         </SortableContext>
         <DragOverlay>{getDragOverlay()}</DragOverlay>
       </DndContext>
 
-      <div className="border w-full p-10"></div>
+      {!slide && <div className="border w-full"></div>}
     </div>
   );
 }

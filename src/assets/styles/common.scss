@@ -1,0 +1,25 @@
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  &:hover {
+    opacity: 0.6;
+  }
+}
+
+.slide-btn {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  padding: 10px;
+  background: white;
+
+  &:hover {
+    scale: 1.1;
+    cursor: pointer;
+  }
+}
