@@ -5,18 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 export function Item(props) {
   const { id } = props;
 
-  const style = {
-    height: 50,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "2px solid #9a9a9a",
-    margin: "10px",
-    background: "white",
-    borderRadius: 8,
-  };
-
-  return <div style={style}>{id}</div>;
+  return <div className="sortable-item">{id}</div>;
 }
 
 export default function SortableItem(props) {

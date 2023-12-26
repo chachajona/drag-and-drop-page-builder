@@ -43,3 +43,14 @@
     background-color: transparent;
   }
 }
+
+.sortable-item {
+  height: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #9a9a9a;
+  margin: 10px;
+  background: white;
+  border-radius: 8;
+}

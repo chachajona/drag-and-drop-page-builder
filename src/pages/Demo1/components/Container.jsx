@@ -8,17 +8,6 @@ import {
 
 import SortableItem, { Item } from "./SortableItem";
 
-const containerStyle = {
-  background: "#dadada",
-  padding: "50px 10px 25px",
-  flex: 1,
-  borderRadius: 8,
-  border: "1px solid #ababab",
-  display: "flex",
-  alignSelf: "stretch",
-  minHeight: 50,
-};
-
 export const Container = React.forwardRef((props, ref) => {
   const { children, row } = props;
 
@@ -33,7 +22,7 @@ export const Container = React.forwardRef((props, ref) => {
 });
 
 export default function SortableContainer(props) {
-  const { getItems, id, row, style = { margin: "50px 25px" } } = props;
+  const { getItems, id, row } = props;
 
   const items = getItems(id);
   const itemIds = items.map((item) => item.id);
