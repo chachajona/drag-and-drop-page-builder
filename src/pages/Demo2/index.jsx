@@ -1,5 +1,10 @@
-function Demo2() {
-  return <div>demo 2</div>;
-}
+import PageBuilder from "../Demo2/components/PageBuilder";
+const Demo2 = () => {
+  return (
+    <div>
+      <PageBuilder />
+    </div>
+  );
+};
 
 export default Demo2;
