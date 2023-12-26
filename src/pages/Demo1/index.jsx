@@ -178,9 +178,9 @@ export default function Demo1() {
   return (
     <div className="flex flex-row gap-8 mx-80 my-5">
       <div className="flex flex-col border w-full p-10 max-w-[25%]">
-        <div className="btn" onClick={addItem()}>
+        {/* <div className="btn" onClick={addItem()}>
           Add Item
-        </div>
+        </div> */}
         <div className="btn" onClick={addItem(true)}>
           Add Column
         </div>
@@ -229,7 +229,7 @@ export default function Demo1() {
         <DragOverlay>{getDragOverlay()}</DragOverlay>
       </DndContext>
 
-      {!slide && <div className="border w-full"></div>}
+      {!slide && <div className="border w-full">Your code here...</div>}
     </div>
   );
 }

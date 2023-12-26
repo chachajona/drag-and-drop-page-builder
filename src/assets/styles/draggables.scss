@@ -10,18 +10,18 @@
 
 .container {
   background: #dadada;
-  padding: 50px 10px 25px;
+  padding: 50px;
   flex: 1;
-  border-radius: 8;
+  border-radius: 8px;
   border: 1px solid #ababab;
   display: flex;
   align-self: stretch;
-  min-height: 50;
 
   &-row {
     flex-direction: row;
     background-color: #cdcdcd;
     margin-bottom: 5px;
+    gap: 1rem;
   }
 
   &-column {
