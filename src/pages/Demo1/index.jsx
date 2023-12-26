@@ -1,37 +1,21 @@
-import React, { useState } from "react";
+import { useState } from "react";
+
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  arrayMove,
-  sortableKeyboardCoordinates,
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 
-import SortableContainer, { Container } from "./components/Container";
-import SortableItem, { Item } from "./components/SortableItem";
-import { useComponentStore } from "../../store/components";
-import { ReactComponent as ArrowLeft } from "../../assets/icons/arrowLeft.svg";
-import { ReactComponent as ArrowRight } from "../../assets/icons/arrowRight.svg";
+import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+
+import Container from "./components/Container";
+import Item from "./components/Item";
 
 export default function Demo1() {
-  const [slide, toggleSlide] = useState(true);
-  const { components, addNewComponent, setComponents } = useComponentStore(
-    (state) => ({
-      components: state.components,
-      addNewComponent: state.addNewComponent,
-      setComponents: state.setComponents,
-    })
-  );
-  const [activeId, setActiveId] = useState();
-
+  // Dnd sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -39,197 +23,186 @@ export default function Demo1() {
     })
   );
 
-  function addItem(container, row) {
-    return () => {
-      addNewComponent({
-        id: components.length + 1,
-        container,
-        row,
-      });
-    };
-  }
+  // All items
+  const items = [
+    { id: "cart", label: "Shopping Cart" },
+    { id: "logo", label: "Logo" },
+    { id: "menu", label: "Navigation Menu" },
+    { id: "search", label: "Search" },
+    { id: "social", label: "Social Links" },
+    { id: "button", label: "Button" },
+  ];
 
-  function isContainer(id) {
-    const item = components.find((item) => item.id === id);
+  // Layout structure
+  const [layout, setLayout] = useState({
+    top_left: ["social"],
+    top_center: [],
+    top_right: ["cart", "search"],
+    bottom_left: ["logo"],
+    bottom_center: ["menu"],
+    bottom_right: ["button"],
+  });
 
-    return !item ? false : item.container;
-  }
-
-  function isRow(id) {
-    const item = components.find((item) => item.id === id);
-
-    return !item ? false : item.row;
-  }
-
-  function getItems(parent) {
-    return components.filter((item) => {
-      if (!parent) {
-        return !item.parent;
-      }
-
-      return item.parent === parent;
-    });
-  }
-
-  function getItemIds(parent) {
-    return getItems(parent).map((item) => item.id);
-  }
-
-  function findParent(id) {
-    const item = components.find((item) => item.id === id);
-    return !item ? false : item.parent;
-  }
-
-  function getDragOverlay() {
-    if (!activeId) {
-      return null;
-    }
-
-    if (isContainer(activeId)) {
-      const item = components.find((i) => i.id === activeId);
-
-      return (
-        <Container row={item.row}>
-          {getItems(activeId).map((item) => (
-            <Item key={item.id} id={item.id} />
-          ))}
-        </Container>
-      );
-    }
-
-    return <Item id={activeId} />;
-  }
-
-  function handleDragStart(event) {
-    const { active } = event;
-    const { id } = active;
-
-    setActiveId(id);
-  }
-
-  function handleDragOver(event) {
-    const { active, over } = event;
-    const { id } = active;
-    let overId;
-    if (over) {
-      overId = over.id;
-    }
-
-    const overParent = findParent(overId);
-    const overIsContainer = isContainer(overId);
-    const activeIsContainer = isContainer(activeId);
-    if (overIsContainer) {
-      const overIsRow = isRow(overId);
-      const activeIsRow = isRow(activeId);
-      // only columns to be added to rows
-      if (overIsRow) {
-        if (activeIsRow) {
-          return;
-        }
-
-        if (!activeIsContainer) {
-          return;
-        }
-      } else if (activeIsContainer) {
-        return;
-      }
-    }
-
-    const activeIndex = components.findIndex((item) => item.id === id);
-    const overIndex = components.findIndex((item) => item.id === overId);
-
-    let newIndex = overIndex;
-    const isBelowLastItem = over && overIndex === components.length - 1;
-
-    const modifier = isBelowLastItem ? 1 : 0;
-
-    newIndex = overIndex >= 0 ? overIndex + modifier : components.length + 1;
-
-    let nextParent;
-    if (overId) {
-      nextParent = overIsContainer ? overId : overParent;
-    }
-
-    components[activeIndex].parent = nextParent;
-    const newComponents = arrayMove(components, activeIndex, newIndex);
-    setComponents(newComponents);
-  }
-
-  function handleDragEnd(event) {
-    const { active, over } = event;
-    const { id } = active;
-    let overId;
-    if (over) {
-      overId = over.id;
-    }
-
-    const activeIndex = components.findIndex((item) => item.id === id);
-    const overIndex = components.findIndex((item) => item.id === overId);
-
-    let newIndex = overIndex >= 0 ? overIndex : 0;
-
-    if (activeIndex !== overIndex) {
-      setComponents(arrayMove(components, activeIndex, newIndex));
-    }
-
-    setActiveId(null);
-  }
+  // Dragged item state
+  const [draggedItem, setDraggedItem] = useState(null);
 
   return (
-    <div className="flex flex-row gap-8 mx-80 my-5">
-      <div className="flex flex-col border w-full p-10 max-w-[25%]">
-        {/* <div className="btn" onClick={addItem()}>
-          Add Item
-        </div> */}
-        <div className="btn" onClick={addItem(true)}>
-          Add Column
-        </div>
-        <div className="btn" onClick={addItem(true, true)}>
-          Add Row
-        </div>
-      </div>
-
+    <div className="grid">
       <DndContext
         sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        strategy={closestCorners}
+        /**
+         * When drag starts:
+         * Set the dragged item state
+         */
+        onDragStart={({ active }) => {
+          const activeItem = items.find((item) => {
+            return active.id === item.id;
+          });
+
+          setDraggedItem(activeItem);
+        }}
+        /**
+         * When drag ends:
+         * Remove the dragged item state
+         * Update the layout state
+         */
+        onDragEnd={({ active, over }) => {
+          // Remove the dragged item state
+          setDraggedItem(null);
+
+          // Abort if over is null or undefined
+          if (!over) {
+            return;
+          }
+
+          // Abort if item is not moved from its original position
+          if (active.id === over.id) {
+            return;
+          }
+
+          // Update the layout state
+          setLayout((prevLayout) => {
+            // Get the container ID
+            const overContainerId =
+              over.id in layout
+                ? over.id
+                : over.data.current.sortable.containerId;
+
+            // Get items in current container
+            let containerItems = prevLayout[overContainerId];
+
+            // Get dragged item and targeted item indexes
+            const activeIndex = containerItems.indexOf(active.id);
+            const overIndex = containerItems.indexOf(over.id);
+
+            // Set new layout
+            return {
+              ...prevLayout,
+              [overContainerId]: arrayMove(
+                containerItems,
+                activeIndex,
+                overIndex
+              ),
+            };
+          });
+        }}
+        /**
+         * Use this event handler to move items to other container
+         */
+        onDragOver={({ active, draggingRect, over }) => {
+          // Abort if over is null or undefined
+          if (!over) {
+            return;
+          }
+
+          // Abort if item is not moved from its original position
+          if (active.id === over.id) {
+            return;
+          }
+
+          // Get dragged item's container ID
+          const activeContainerId = active.data.current.sortable.containerId;
+
+          // Get targeted container ID
+          // The target might be a container (not an item)
+          const overContainerId =
+            over.id in layout
+              ? over.id
+              : over.data.current.sortable.containerId;
+
+          // Abort if the dragged item are still in the same container
+          // We only process item that is being moved to other containers
+          if (activeContainerId === overContainerId) {
+            return;
+          }
+
+          // Chekc if we are moving item to other containers
+          // We only process item that is being moved to other containers
+          const overIsAContainer = overContainerId === over.id;
+          if (!overIsAContainer) {
+            return;
+          }
+
+          // Update the layout state
+          setLayout((prevLayout) => {
+            let activeItems = prevLayout[activeContainerId];
+            let overItems = prevLayout[overContainerId];
+
+            // Remove the dragged item from the original container
+            activeItems = activeItems.filter((itemId) => {
+              return itemId !== active.id;
+            });
+
+            // Detect where the dragged item is coming to the targeted container
+            if (active.rect.current.translated.right < over.rect.right) {
+              // From left, add the dragged item as the first item
+              overItems = [active.id, ...overItems];
+            } else {
+              // From right, add the dragged item as the last item
+              overItems = [...overItems, active.id];
+            }
+
+            // Set new layout
+            return {
+              ...prevLayout,
+              [activeContainerId]: activeItems,
+              [overContainerId]: overItems,
+            };
+          });
+        }}
       >
-        <SortableContext
-          id="root"
-          items={getItemIds()}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="droppable">
-            {getItems().map((item) => {
-              if (item.container) {
+        {Object.keys(layout).map((containerId) => {
+          const containerItems = layout[containerId].map((itemId) => {
+            return items.find((item) => {
+              return itemId === item.id;
+            });
+          });
+
+          return (
+            <Container
+              key={containerId}
+              id={containerId}
+              items={containerItems}
+            >
+              {containerItems.map((item) => {
                 return (
-                  <SortableContainer
+                  <Item
                     key={item.id}
                     id={item.id}
-                    getItems={getItems}
-                    row={item.row}
+                    label={item.label}
+                    isActive={draggedItem?.id === item.id}
                   />
                 );
-              }
-
-              return (
-                <SortableItem key={item.id} id={item.id}>
-                  <Item id={item.id} />
-                </SortableItem>
-              );
-            })}
-
-            <div className="slide-btn" onClick={() => toggleSlide(!slide)}>
-              {slide ? <ArrowLeft /> : <ArrowRight />}
-            </div>
-          </div>
-        </SortableContext>
-        <DragOverlay>{getDragOverlay()}</DragOverlay>
+              })}
+            </Container>
+          );
+        })}
+        <DragOverlay>
+          {draggedItem && (
+            <Item id={draggedItem.value} label={draggedItem.label} />
+          )}
+        </DragOverlay>
       </DndContext>
-
-      {!slide && <div className="border w-full">Your code here...</div>}
     </div>
   );
 }
