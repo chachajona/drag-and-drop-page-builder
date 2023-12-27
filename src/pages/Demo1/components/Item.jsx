@@ -1,5 +1,5 @@
 import { useSortable } from "@dnd-kit/sortable";
-
+import { ReactComponent as MoveIcon } from "../../../assets/icons/moveIcon.svg";
 import { CSS } from "@dnd-kit/utilities";
 
 function Item({ id, isActive, label }) {
@@ -17,9 +17,13 @@ function Item({ id, isActive, label }) {
         transition,
       }}
       {...attributes}
-      {...listeners}
     >
-      <span>{label}</span>
+      <div className="flex items-center gap-2" {...listeners}>
+        <button className="drag-handle">
+          <MoveIcon />
+        </button>
+        <span>{label}</span>
+      </div>
     </span>
   );
 }
