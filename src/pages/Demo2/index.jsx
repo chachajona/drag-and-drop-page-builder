@@ -1,9 +1,11 @@
 import PageBuilder from "../Demo2/components/PageBuilder";
+import DesignerContextProvider from "../Demo2/components/context/DesignerContext";
+
 const Demo2 = () => {
   return (
-    <div>
+    <DesignerContextProvider>
       <PageBuilder />
-    </div>
+    </DesignerContextProvider>
   );
 };
 
